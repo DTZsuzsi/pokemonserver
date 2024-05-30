@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "encrypt-with-password": "^1.0.0",
     "express": "^4.19.2",
     "mongoose": "^8.4.0"
   }
