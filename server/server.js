@@ -1,14 +1,10 @@
 import express from 'express';
 import passwords from '/Users/Zsuzsi/Documents/pokemon/server/pokemonserver/server/keys.js';
 import mongoose from 'mongoose';
-import User from '/Users/Zsuzsi/Documents/pokemon/server/pokemonserver/server/model/users.js'
-// import encrypt from 'encrypt-with-password';
+import User from '/Users/Zsuzsi/Documents/pokemon/server/pokemonserver/server/model/users.js';
 
 mongoose.connect(passwords[1].mongoconnect);
 
-// ('mongodb+srv://pokeserver:rattata2@pokecluster.olee5ij.mongodb.net/')
-
-//
 const app = express();
 
 app.use(express.json());
@@ -21,15 +17,20 @@ app.listen(4444, () => console.log('Server started on port 4444'));
 app.post('/api/user', (req, res) => {
   const userName = req.body.user_name;
   const password = req.body.password;
-//   const encryptPassword = password.encrypt(password);
+  const fullname= req.body.user_fullName;
+  const pokemons=req.body.pokemons
+  //   const encryptPassword = password.encrypt(password);
   const createdAt = Date.now();
 
   const user = new User({
     userName,
     password,
+    fullname,
+    pokemons,
     createdAt,
   });
-  user.save()
+  user
+    .save()
     .then((user) => res.json(user))
     .catch((err) => res.status(400).json({ success: false }));
 
@@ -37,7 +38,7 @@ app.post('/api/user', (req, res) => {
 });
 
 app.delete('/api/users', async (req, res) => {
-  const userName = req.body;
+  const userName = req.body.user_name;
   try {
     const result = await User.deleteOne({ userName });
     if (result.deletedCount === 0) {
@@ -49,11 +50,12 @@ app.delete('/api/users', async (req, res) => {
   }
 });
 
-app.get('/api/userList', async (req, res) => {
+app.get('/api/users/:user_name', async (req, res) => {
   try {
-    const userID = req.body;
-    const User = await User.findByID(userID);
-    res.json(User);
+    const userName = req.params.user_name;
+    const User = await User.exists({ user_name: userName });
+    res.json({ succes: true, message: User});
+
   } catch (error) {
     res.status(500).json({ success: false, message: 'Error fetching user' });
   }
